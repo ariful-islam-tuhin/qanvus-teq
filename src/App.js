@@ -1,62 +1,51 @@
-// -- React and related libs
-import React from "react";
-import { Switch, Route, Redirect } from "react-router";
-import { HashRouter } from "react-router-dom";
+import logo from './logo.svg';
+import './App.css';
+import Header from './Common/Header/Header';
+import { BrowserRouter } from 'react-router-dom';
+import { Switch } from 'react-router-dom';
+import { Route } from 'react-router-dom';
+import Home from './HomePage/Home/Home';
+import Footer from './Common/Footer/Footer';
+import NotFound from './Component/NotFound/NotFound';
+import Login from './Component/Login/Login';
+import Register from './Component/Register/Register';
+import AuthProvider from './Contexts/AuthProvider/AuthProvider';
+import PrivetRoute from './Component/PrivetRoute/PrivetRoute';
+import Dashboard from './Component/Dashboard/Dashboard/Dashboard';
 
-// -- Redux
-import { connect } from "react-redux";
 
-// -- Custom Components
-import LayoutComponent from "./components/Layout/Layout";
-import ErrorPage from "./pages/error/ErrorPage";
-import Login from "./pages/login/Login";
-import Register from "./pages/register/Register";
-
-// -- Redux Actions
-import { logoutUser } from "./actions/auth";
-
-// -- Third Party Libs
-import { ToastContainer } from "react-toastify";
-
-// -- Services
-import isAuthenticated from "./services/authService";
-
-// -- Component Styles
-import "./styles/app.scss";
-
-const PrivateRoute = ({ dispatch, component, ...rest }) => {
-  if (!isAuthenticated(JSON.parse(localStorage.getItem("authenticated")))) {
-    dispatch(logoutUser());
-    return (<Redirect to="/login" />)
-  } else {
-    return (
-      <Route { ...rest } render={props => (React.createElement(component, props))} />
-    );
-  }
-};
-
-const App = (props) => {
+function App() {
   return (
-    <div>
-      <ToastContainer/>
-      <HashRouter>
+    <div className="App">
+    <AuthProvider>
+    <BrowserRouter>
+        <Header></Header>
         <Switch>
-          <Route path="/" exact render={() => <Redirect to="/template/dashboard" />} />
-          <Route path="/template" exact render={() => <Redirect to="/template/dashboard"/>}/>
-          <PrivateRoute path="/template" dispatch={props.dispatch} component={LayoutComponent} />
-          <Route path="/login" exact component={Login} />
-          <Route path="/error" exact component={ErrorPage} />
-          <Route path="/register" exact component={Register} />
-          <Route component={ErrorPage}/>
-          <Route path='*' exact={true} render={() => <Redirect to="/error" />} />
+          <Route exact path="/">
+            <Home></Home>
+          </Route>
+          <Route path="/home">
+            <Home></Home>
+          </Route>        
+          <Route path="/login">
+            <Login></Login>
+          </Route>
+          <Route path="/register">
+            <Register></Register>
+          </Route>
+          <PrivetRoute path='/dashboard'>
+              <Dashboard></Dashboard>             
+            </PrivetRoute>        
+          <Route path="*">
+            <NotFound></NotFound>
+          </Route>
         </Switch>
-      </HashRouter>
+        <Footer></Footer>
+      </BrowserRouter>
+    </AuthProvider>
+
     </div>
   );
 }
 
-const mapStateToProps = state => ({
-  isAuthenticated: state.auth.isAuthenticated,
-});
-
-export default connect(mapStateToProps)(App);
+export default App;
